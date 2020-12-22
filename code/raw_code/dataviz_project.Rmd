@@ -4,7 +4,7 @@ author: "Alex Rivera Cruz"
 date: "12/22/2019"
 output: html_document
 ---
-
+First, we have to setup installing and loading the necessary packages.
 ```{r setup, include=FALSE}
 ## install packages if necessary
 list.of.packages <- c("janitor", "ggplot2", "dplyr", "lubridate", "zoo", "forcats", "ggthemes", "knitr", "rmarkdown")
@@ -40,6 +40,8 @@ pets <- read.csv("dataviz_project/data/raw_data/seattle_pet_licenses.csv", strin
 
 ## Explore the Data
 
+Now, we have to explore the data.
+
 ```{r pet-explore, warning=FALSE} 
 ## Include code here to explore the data
 ## and answer the questions in the exercise
@@ -52,12 +54,15 @@ unique(pets$species)
 
 ## Visualize the Data
 
+Creating a Bar Plot of species in the data.
+
 ```{r pet-barchart, warning=FALSE} 
 ## visual breakdown of how many of each species 
 ## are included in the dataset
 ggplot(pets) +
   geom_bar(aes(x=species))
 ```
+Creating a table of Most common cat name:
 
 ```{r pet-cat-table, warning=FALSE} 
 ## Table: Most frequent Cat Name 
@@ -70,6 +75,8 @@ pets %>%
   knitr::kable(., caption = "Top 10 Cat Names in Seattle")
 ```
 
+Creating a table of Most common dog name:
+
 ```{r pet-dog-table, warning=FALSE} 
 ## Table: Most frequent Dog Name
 ## ADD CODE!
@@ -81,6 +88,8 @@ pets %>%
   top_n(n = 10) %>%
   knitr::kable(., caption = "Top 10 Dog Names in Seattle")
 ```
+
+Creating a Line Plot to see the registration of licese across the time.
 
 ```{r pet-linechart, warning=FALSE} 
 ## add date and ym columns
@@ -101,6 +110,7 @@ pets %>%
   ylab("Number of licenses")
 ```
 
+Creating a table to see most common Dog Breed
 ```{r pet-plot, warning=FALSE} 
 ### Explore the data -- create your own plot!
 
@@ -119,21 +129,32 @@ The data used in this part of the project were dowloaded from [FiveThirtyEight](
 
 ## The Data
 
+Reading the data.
+
 ```{r meat-data, warning=FALSE} 
 ## read in the data
-steak <- read.csv("data/raw_data/steak-risk-survey.csv", stringsAsFactors = FALSE) %>%
+steak <- read.csv("dataviz_project/data/raw_data/steak-risk-survey.csv", stringsAsFactors = FALSE) %>%
   ## remove first row which just includes the word "Response" in each column
   slice(2:n())
 ```
 
 ## Explore the Data
 
+Exploring tha dataset of steak.
+
 ```{r meat-explore, warning=FALSE} 
 ## Include code here to explore the data 
 ## and answer the questions in the exercise
+head(steak)
+nrow(steak)
+colnames(steak)
+sum(steak$Do.you.eat.steak.=="Yes")
+unique(steak$How.do.you.like.your.steak.prepared.)
 ```
 
 ## Wrangle the Data
+
+Wrangling the data to work better.
 
 ```{r meat-wrangle, warning=FALSE} 
 ## wrangle the steak data set
@@ -148,15 +169,20 @@ pref <- steak %>%
   group_by(steak_pref) %>% 
   summarise(n = n()) %>%
   mutate(prop = n / sum(n))
+
+dim(pref)
+pref
 ```
 
 ## Visualize the Data
+
+Generating the explanatory plot about the preferences of steak wellness.
 
 ```{r meat-visualize, warning=FALSE}
 ## generate the plot 
 p <- ggplot(pref) +
   ## specify you want to generate a bar chart
-  function_name(aes(x = steak_pref, y = prop, fill = steak_pref),
+  geom_bar(aes(x = steak_pref, y = prop, fill = steak_pref),
                 stat = 'identity', 
                 width = 0.7) + 
   ## this adds text labels (you don't have to change anything here)
@@ -168,32 +194,32 @@ p <- ggplot(pref) +
             size = 5,
             color = "grey40") +
   ## flip coordinates to make horizontal box plot
-  function_name() +
+  coord_flip() +
   ## change the colors of the bars
-  function_name(values = c("#370B01", 
+  scale_fill_manual(values = c("#370B01", 
                            "#70402C",
                            "#955732", 
                            "#B36153",
                            "#B5413F")) +
   ## change the scale/labels of the steak-wellness variable (x-axis)
-  function_name(limits = levels(fct_rev(pref$steak_pref)),
+  scale_x_discrete(limits = levels(fct_rev(pref$steak_pref)),
                 labels = c("Well", 
                            "Medium Well" = "Medium-well",
                            "Medium",
                            "Medium rare"="Medium-rare",
                            "Rare")) +
-  ## change the scale/lables of the percent axis (y-axis)
-  function_name(labels = scales::percent, 
+  ## change the scale/labels of the percent axis (y-axis)
+  scale_y_continuous(labels = scales::percent, 
                 expand = c(mult = c(0,0), 
                            add = c(0,0.035))) +
   ## change the title, subtitle, and caption
-  function_name(title="'How Do You Like Your Steak Prepared?'", 
+  labs(title="'How Do You Like Your Steak Prepared?'", 
                 subtitle="From a survey of 432 steak-eating Americans",
                 caption="FiveThirtyEight: Surveymonkey") +
   ## change the theme (use ggthemes)
-  function_name() +
+  theme_bw() +
   ## fine tune the theme
-  function_name(axis.text = element_text(size = 14), 
+  theme(axis.text = element_text(size = 14), 
                 title = element_text(size = 16), 
                 legend.position="none", 
                 plot.caption=element_text(size = 12), 
@@ -207,21 +233,89 @@ p
 
 ## Save the Plot
 
+Saving the created plot in explanatory figures directory
+
 ```{r save-plot, warning=FALSE}
 ## save plot to figures/explanatory_figures directory
-ggsave(plot = OBJECT_NAME, filename = FILENAME, width = 8, height = 4)
+ggsave(plot = p, filename = "steak_R.png",path = "dataviz_project/figures/explanatory_figures", width = 8, height = 4)
 ```
 
 ## Visualize the Data
 
+Generating the explanatory plot about the of House Income.
+
 ```{r meat-plot, warning=FALSE} 
 ### Explore the data -- create your own plot!
+person_income <- steak %>% 
+  mutate(income = factor(Household.Income,
+                             levels = c("$0 - $24,999",
+                                        "$25,000 - $49,999",
+                                        "$50,000 - $99,999",
+                                        "$100,000 - $149,999",
+                                        "$150,000+"))) %>% 
+  filter(income != "") %>% 
+  group_by(income) %>% 
+  summarise(n = n()) %>%
+  mutate(prop = n / sum(n))
 
+head(person_income)
+
+pnew <- ggplot(person_income) +
+  ## specify you want to generate a bar chart
+  geom_bar(aes(x = income, y = prop, fill = income),
+                stat = 'identity', 
+                width = 0.7) + 
+  ## this adds text labels (you don't have to change anything here)
+  geom_text(aes(label = paste0(as.integer(prop*100),"%"),
+                x = income,
+                y = prop), 
+            stat= "identity", 
+            hjust = -0.2, 
+            size = 5,
+            color = "grey40") +
+  ## flip coordinates to make horizontal box plot
+  coord_flip() +
+  ## change the colors of the bars
+  scale_fill_manual(values = c("#370B01", 
+                           "#70402C",
+                           "#955732", 
+                           "#B36153",
+                           "#B5413F")) +
+  ## change the scale/labels of the income variable (x-axis)
+  scale_x_discrete(limits = levels(fct_rev(person_income$income)),
+                labels = c("$0 - $24,999",
+                            "$25,000 - $49,999",
+                            "$50,000 - $99,999",
+                            "$100,000 - $149,999",
+                            "$150,000+")) +
+  ## change the scale/labels of the percent axis (y-axis)
+  scale_y_continuous(labels = scales::percent, 
+                expand = c(mult = c(0,0), 
+                           add = c(0,0.035))) +
+  ## change the title, subtitle, and caption
+  labs(title="'What are the incomes oh the people?'", 
+                subtitle="From a survey of 550 Americans",
+                caption="FiveThirtyEight: Surveymonkey") +
+  ## change the theme (use ggthemes)
+  theme_bw() +
+  ## fine tune the theme
+  theme(axis.text = element_text(size = 14), 
+                title = element_text(size = 16), 
+                legend.position="none", 
+                plot.caption=element_text(size = 12), 
+                panel.grid.major = element_blank(), 
+                panel.grid.minor = element_blank(),
+                axis.text.x = element_blank() 
+  )
+
+pnew
 ```
 
 ## Save this plot 
 
+Saving the created plot.
+
 ```{r save-meat-plot, warning=FALSE}
 ## save plot to figures/explanatory_figures directory
-ggsave(plot = OBJECT_NAME, filename = DIFFERENT_FILENAME)
+ggsave(plot = pnew, filename = "income.png", path = "dataviz_project/figures/explanatory_figures", width = 8, height = 4) 
 ```
